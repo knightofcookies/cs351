@@ -4,20 +4,21 @@ class MyClass:
 
     def apply(self, func):
         try:
-            result = [func(item) for item in self._atomic_list]
+            result = [
+                func(item) for item in self._atomic_list
+            ]  # applying func without modifying the saved list
             return result
-        except Exception as e:
-            raise Exception(f"Error processing the list: {str(e)}")
+        except Exception as e:  # error handling
+            raise Exception(f"Error: {str(e)}")
 
 
-if __name__ == "__main__":
-    my_list = [1, 2, 3, 4, 5]
-    processor = MyClass(my_list)
+my_list = [1, 2, 3, 4, 5]
+p = MyClass(my_list)
 
-    square_function = lambda x: x**3
+cb_function = lambda x: x**3  # lambda function
 
-    try:
-        processed_result = processor.apply(square_function)
-        print(processed_result)
-    except Exception as ex:
-        print(f"Error: {str(ex)}")
+try:
+    processed_result = p.apply(cb_function)  # passing the cube function
+    print(processed_result)
+except Exception as ex:  # error handling
+    print(f"Error: {str(ex)}")

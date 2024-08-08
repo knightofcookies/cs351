@@ -2,7 +2,7 @@ from typing import List
 
 
 def sort_in_descending_order(l: List[int]) -> List:
-    l.sort(reverse=True)
+    l.sort(reverse=True) # in-place sort so no assignment
     return l
 
 
