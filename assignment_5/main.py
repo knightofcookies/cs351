@@ -1,6 +1,6 @@
 import base64
 import boto3
-
+import time
 
 ec2_client = boto3.client("ec2")
 autoscaling_client = boto3.client("autoscaling")
@@ -8,15 +8,15 @@ cloudwatch_client = boto3.client("cloudwatch")
 
 USER_DATA_SCRIPT = """#!/bin/bash
 sudo yum update -y
-sudo yum install -y httpd
+sudo yum install -y httpd stress
 sudo systemctl start httpd
 sudo systemctl enable httpd
 sudo chmod -R 755 /var/www/html/
 sudo curl -o /var/www/html/index.html https://raw.githubusercontent.com/knightofcookies/knightofcookies.github.io/main/index.html
+sudo stress --cpu 1 --timeout 50
 """
 
 encoded_script = base64.b64encode(USER_DATA_SCRIPT.encode("utf-8")).decode("utf-8")
-
 
 launch_template_data = {
     "ImageId": "ami-0e53db6fd757e38c7",
@@ -69,9 +69,9 @@ cloudwatch_client.put_metric_alarm(
     MetricName="CPUUtilization",
     Namespace="AWS/EC2",
     Statistic="Average",
-    Period=60,
+    Period=10,
     EvaluationPeriods=1,
-    Threshold=70.0,
+    Threshold=10.0,
     ComparisonOperator="GreaterThanThreshold",
     AlarmActions=[scale_up_policy["PolicyARN"]],
 )
@@ -81,9 +81,17 @@ cloudwatch_client.put_metric_alarm(
     MetricName="CPUUtilization",
     Namespace="AWS/EC2",
     Statistic="Average",
-    Period=60,
+    Period=600,
     EvaluationPeriods=1,
-    Threshold=30.0,
+    Threshold=10.0,
     ComparisonOperator="LessThanThreshold",
     AlarmActions=[scale_down_policy["PolicyARN"]],
 )
+
+time.sleep(80)
+
+response = autoscaling_client.describe_auto_scaling_groups(
+    AutoScalingGroupNames=["web-asg"]
+)
+instances = response["AutoScalingGroups"][0]["Instances"]
+print(f"Number of instances: {len(instances)}")
