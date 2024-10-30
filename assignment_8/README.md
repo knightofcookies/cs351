@@ -1,0 +1,1 @@
+> hadoop jar "C:\Users\ahlad\Downloads\Installers\hadoop-3.4.0\hadoop-3.4.0\share\hadoop\tools\lib\hadoop-streaming-3.4.0.jar" -input big.txt -output big_output -mapper mapper.py -combiner combiner.py -reducer reducer.py
